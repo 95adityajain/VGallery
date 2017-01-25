@@ -1,4 +1,4 @@
-import { hashAsync, genSaltAsync, compareAsync } from "../BycryptPromise";
+import { hashAsync, genSaltAsync, compareAsync } from "../BcryptPromise";
 
 export default class HashUtils {
     static generatePasswordHash (password, rounds) {
