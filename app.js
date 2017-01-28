@@ -1,8 +1,7 @@
 /**
  * Module dependencies
  */
-//import path from "path";
-import logger from "winston";
+import logger from "./server/logger";
 import bodyParser from "body-parser";
 import compression from "compression";
 import express from "express";
@@ -12,13 +11,8 @@ import socketIO from "socket.io";
 import mongoose from "./server/commons/MongoosePromise";
 import config from "./server/config";
 
+import UserRoutes from "./server/components/user/UserRoute";
 
-/**
- * logger configuration
- */
-if (config.env == "production") {
-    logger.configure ({});
-}
 
 
 /**
@@ -67,7 +61,7 @@ app.get("/", function(req, res){
     res.sendFile(__dirname + "/index.html");
 });
 
-app.use ("/api", function () {});
+app.use ("/user", UserRoutes);
 
 app.use(function(req, res){
     res.type("text/html");

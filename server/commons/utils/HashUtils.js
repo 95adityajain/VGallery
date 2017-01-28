@@ -9,9 +9,6 @@ export default class HashUtils {
     }
 
     static isValidPassword (password, hashedPassword) {
-        return compareAsync (password, hashedPassword)
-            .then ((result) => {
-                return result;
-            });
+        return compareAsync (password, hashedPassword);
     }
 }
