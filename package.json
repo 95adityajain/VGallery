@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "babel-node app.js --presets es2015",
+    "custom": "babel-node testFeature.js --presets es2015",
     "start-client": ""
   },
   "keywords": [],
@@ -18,10 +19,13 @@
     "body-parser": "^1.16.0",
     "compression": "^1.6.2",
     "express": "^4.14.0",
+    "lodash": "^4.17.4",
     "mongoose": "^4.7.7",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
+    "redis": "^2.6.5",
     "socket.io": "^1.7.2",
+    "uuid": "^3.0.1",
     "winston": "^2.3.1"
   },
   "devDependencies": {

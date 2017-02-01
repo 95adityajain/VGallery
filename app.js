@@ -1,36 +1,30 @@
 /**
  * Module dependencies
  */
-import logger from "./server/logger";
 import bodyParser from "body-parser";
 import compression from "compression";
 import express from "express";
 import http from "http";
 import socketIO from "socket.io";
+import Promise from "bluebird";
 
-import mongoose from "./server/commons/MongoosePromise";
+import mongoose from "./server/commons/client/MongooseClient";
+import redis from "./server/commons/client/RedisClient";
+
 import config from "./server/config";
+import Utils from "./server/commons/utils";
 
 import UserRoutes from "./server/components/user/UserRoute";
 
 
 
-/**
- * Mongoose connection and events
- */
-mongoose.connect (config.mongoose.getUrlString ());
-mongoose.connection.on("error",function (err) {
-    logger.error("Mongoose connection error: " + err);
-});
-mongoose.connection.on("disconnected", function () {
-    logger.error("Mongoose connection disconnected");
-});
-// If the Node process ends, close the Mongoose connection
+// If the Node process ends, close all connection
 process.on("SIGINT", function() {
-    mongoose.connection.close(function () {
-        logger.info("Mongoose default connection disconnected through app termination");
-        process.exit(0);
+    Promise.all ([mongoose.connection.close, redis.end (true)]).finally (() => {
+        Utils.log("info", "All resources freed. :)");
+        process.exit (0);
     });
+
 });
 
 /**
@@ -46,12 +40,16 @@ const io = socketIO (httpServer);
  * Express configuration
  */
 app.set ("env", config.env);
-app.set ("port", config.env);
+app.set ("port", config.express.port);
 //app.use ("/static", express.static (config.staticPath));
 app.use (compression ());
 app.use (bodyParser.json ());
 app.use(bodyParser.urlencoded({extended:true}));
 
+/**
+ * Request logger
+ */
+app.use (Utils.requestLogger);
 
 
 /**
@@ -77,5 +75,5 @@ app.use(function(req, res){
 io.on ("connection", function () {});
 
 httpServer.listen(config.express.port, function(){
-    logger.info("Server Listening at port no. : " + config.express.port);
+    Utils.log("info", "Server Listening at port no. : " + config.express.port);
 });
