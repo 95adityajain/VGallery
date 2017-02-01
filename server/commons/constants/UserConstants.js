@@ -1,8 +1,4 @@
 const constants = {
-    GENDER_MALE: "male",
-    GENDER_FEMALE: "female",
-    GENDER_OTHER: "other",
-
     PROCESSING_ERROR: "Oops! something went wrong",
 
     USER_REGISTRATION_REQUEST: "Registration request submitted",
@@ -13,7 +9,19 @@ const constants = {
     USER_PRE_LOGIN_REGISTRATION_PENDING_ERROR: "Your registration request is pending",
     USER_PRE_LOGIN_ACCOUNT_DISABLED_ERROR: "Your account is disabled",
     USER_LOGIN_ERROR: "Login request failed",
-    USER_LOGIN_PASSWORD_NOT_MATCH_ERROR: "Password didn't match"
+    USER_LOGOUT_ERROR: "Logout request failed",
+    USER_LOGIN_PASSWORD_NOT_MATCH_ERROR: "Password didn't match",
+
+    USER_GET_PROFILE_ERROR: "Unable to get user basic profile",
+    USER_GET_PREFERENCES_ERROR: "Unable to get user preferences",
+
+    USER_SESSION_AUTHENTICATION_FAILED_ERROR: "Authentication failed",
+    USER_MISSING_QUERY_PARAMS_ERROR: "Missing required query params is request",
+
+    USER_CACHE_FAILED: "Cache failed, Serving from slow storage.",
+
+    USER_REDIS_GET_ERROR: "Unable to get user in redis",
+    USER_REDIS_SET_ERROR: "Unable to set user in redis"
 };
 
 

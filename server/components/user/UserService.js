@@ -1,23 +1,18 @@
-import UserModel from "./UserModel";
-import logger from "../../logger";
+import UserLogic from "./UserLogic";
 import HashUtils from "../../commons/utils/HashUtils";
+import Utils from "../../commons/utils";
 import UserConstants from "../../commons/constants/UserConstants";
-import ProcessErrorConstants from "../../commons/constants/ErrorConstants";
-/**
- * POST /user/registrationRequest
- * Middleware for pre registrationRequest checks
- */
-export const preRegistrationRequest = (req, res, next) => {
-    UserModel.getUserObjByEmail (req.body.user.email)
-    .then ((existingUser) => {
-        if (existingUser && existingUser.email !== undefined) {
-            return res.status (500).json ({"message":UserConstants.USER_REGISTRATION_EMAIL_ALREADY_EXISTS});
-        }
-        next ();
-    })
-    .catch ((err) => {
-        logger.error (err.toString ());
-        res.status (500).json ({"message":UserConstants.USER_REGISTRATION_REQUEST_ERROR});
+//import ProcessErrorConstants from "../../commons/constants/ErrorConstants";
+import { USERCONST } from "../../commons/constants/DataConstants";
+import { OperationalError } from "bluebird";
+
+
+
+const submitRegistrationRequest = (user) => {
+    return  UserLogic.save (user).then ((newUser) => {
+        UserLogic.cache (newUser).catch ((err) => { // do not fail fast, if not stored in cache.
+            Utils.log ("error", UserConstants.USER_REDIS_SET_ERROR + "\n" + err);
+        });
     });
 };
 
@@ -26,81 +21,100 @@ export const preRegistrationRequest = (req, res, next) => {
  * Submits Registration request, for admin to approve.
  */
 export const registrationRequest = (req, res) => {
-    let newUser = new UserModel (req.body.user);
-    newUser.save ()
-    .then (() => {
-        logger.info (req.body.user);
+    const user = req.body.user;
+    submitRegistrationRequest (user).then (() => {
         res.status (200).json ({"message": UserConstants.USER_REGISTRATION_REQUEST});
+        return Utils.log ("info", user);
     }).catch ((err) => {
-        logger.error (err.toString ());
-        res.status (500).json ({"message":UserConstants.USER_REGISTRATION_REQUEST_ERROR});
+        res.status (500).json ({"message": UserConstants.USER_REGISTRATION_REQUEST_ERROR});
+        return Utils.log ("error", UserConstants.USER_REGISTRATION_REQUEST_ERROR + "\n" + err);
     });
 };
-/**
- * POST /login
- * Middleware for pre Login checks
- */
-export const preLogin = (req, res, next) => {
-    UserModel.getUserObjByEmail (req.body.email)
-    .then ((existingUser) => {
-        if (!existingUser) {
-            return res.status (400).json ({"message": UserConstants.USER_PRE_LOGIN_EMAIL_NOT_EXISTS_ERROR});
-        }
-        if (existingUser.isDisabled) {
-            return res.status (400).json ({"message": UserConstants.USER_PRE_LOGIN_ACCOUNT_DISABLED_ERROR});
-        }
-        if (existingUser.isRegistrationRequestPending) {
-            return res.status (200).json ({"message": UserConstants.USER_PRE_LOGIN_REGISTRATION_PENDING_ERROR});
-        }
-        req["vgallery"] = {};
-        req["vgallery"]["user"] = existingUser;
-        next ();
-    })
-    .catch ((err) => {
-        logger.error (err.toString ());
-        res.status (500).json ({"message": UserConstants.USER_LOGIN_ERROR});
+
+
+const performLogin = (email, password) => {
+    return UserLogic.getField (email, USERCONST.FIELD_PASSWORD).then ((hashedPassword) => {
+        return HashUtils.compareHash (password, hashedPassword);
+    }).then ((isValidPassword) => {
+        if (!isValidPassword)
+            throw new OperationalError (UserConstants.USER_LOGIN_PASSWORD_NOT_MATCH_ERROR);
+        return true;
     });
 };
 
 /**
  * POST /login
  * Login
+ * @body    {
+ *              "username": <String>,
+ *              "email": <String>
+ *          }
  */
+//THINK: If users login again, either create new sessionIDS or return old if present,
+//currently doing: return new session-Id's
 export const login = (req, res) => {
-    if (!req.vgallery || !req.vgallery.user) {
-        return logger.error ("KABOOM!, can't happen");
-        //next ();
-    }
-    HashUtils.isValidPassword (req.body.password, req.vgallery.user.password)
-    .then (function (isValid) {
-        if (!isValid) {
-            return res.status (400).json ({"message": UserConstants.USER_LOGIN_PASSWORD_NOT_MATCH_ERROR});
-        }
-        //create SESSION KEY & SIGNED SESSION KEY
-        res.status (200).json (req.vgallery.user);
-    })
-    .catch ((err) => {
-        logger.error (err);
+    const email = req.body.email;
+    const password = req.body.password;
+    performLogin (email, password).then (() => {
+        const authObj = {
+            [USERCONST.FIELD_SID]: HashUtils.getRandomString (),
+            [USERCONST.FIELD_SSID]: HashUtils.getRandomString ()
+        };
+        UserLogic.setSession (email, authObj).then (() => {
+            authObj.email = email;
+            res.status (200).json (authObj);
+        });
+    }).catch (OperationalError, (err) => {
+        res.status (500).json ({"message": err});
+        return Utils.log ("error", err);
+    }).catch ((err) => {
         res.status (500).json ({"message": UserConstants.USER_LOGIN_ERROR});
+        return Utils.log ("error", err);
     });
 };
 
-export const logout = (req, res) => {
 
+/**
+ * GET /logout
+ * Logout
+ */
+export const logout = (req, res) => {
+    const email = req.query.email;
+    UserLogic.deleteSession (email).then (() => {
+        res.status (200).json ({});
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_LOGOUT_ERROR});
+        return Utils.log ("error", err);
+    });
 };
 
-// will check for sid & ssid
-export const profile = (req, res) => {
-    UserModel.getUserObjByEmail (req.email)
-    .then ((existingUser) => {
-        if (!existingUser || !existingUser.email) {
-            return res.status (500).json ({});
-        }
-        res.status (200).json (existingUser.profile);
-    })
-    .catch ((err) => {
-        logger.error (err.toString ());
-        res.status (500).json ({"message": ProcessErrorConstants.PROCESSING_ERROR});
+
+/**
+ * GET /basicProfile
+ * BasicProfile
+ */
+export const basicProfile = (req, res) => {
+    const email = req.query.email;
+    return UserLogic.getField (email, USERCONST.FIELD_PROFILE).then ((basicProfileObj) => {
+        res.status (200).json (basicProfileObj);
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_GET_PROFILE_ERROR});
+        return Utils.log ("error", UserConstants.USER_GET_PROFILE_ERROR+"\n"+err);
+    });
+};
+
+
+/**
+ * GET /preferences
+ * Preferences
+ */
+export const preferences = (req, res) => {
+    const email = req.query.email;
+    return UserLogic.getField (email, USERCONST.FIELD_PREFERENCES).then ((preferencesObj) => {
+        res.status (200).json (preferencesObj);
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_GET_PREFERENCES_ERROR});
+        return Utils.log ("error", UserConstants.USER_GET_PREFERENCES_ERROR+"\n"+err);
     });
 };
 
