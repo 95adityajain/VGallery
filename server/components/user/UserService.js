@@ -8,21 +8,13 @@ import { OperationalError } from "bluebird";
 
 
 
-const submitRegistrationRequest = (user) => {
-    return  UserLogic.save (user).then ((newUser) => {
-        UserLogic.cache (newUser).catch ((err) => { // do not fail fast, if not stored in cache.
-            Utils.log ("error", UserConstants.USER_REDIS_SET_ERROR + "\n" + err);
-        });
-    });
-};
-
 /**
  * POST /user/registrationRequest
  * Submits Registration request, for admin to approve.
  */
 export const registrationRequest = (req, res) => {
     const user = req.body.user;
-    submitRegistrationRequest (user).then (() => {
+    UserLogic.create (user).then (() => {
         res.status (200).json ({"message": UserConstants.USER_REGISTRATION_REQUEST});
         return Utils.log ("info", user);
     }).catch ((err) => {

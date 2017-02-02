@@ -2,7 +2,7 @@ import { Schema, model } from "../../commons/client/MongooseClient";
 import HashUtils from "../../commons/utils/HashUtils";
 //import ErrorConstants from "../../commons/constants/ErrorConstants";
 import { USERCONST } from "../../commons/constants/DataConstants";
-import logger from "../../logger";
+import Utils from "../../commons/utils";
 
 
 
@@ -40,13 +40,11 @@ userSchema.pre ("save", function(next) {
     if (!user.isModified (USERCONST.FIELD_PASSWORD)) {
         return next ();
     }
-    HashUtils.generateHash (user[USERCONST.FIELD_PASSWORD])
-    .then ((hashedPassword) => {
+    HashUtils.generateHash (user[USERCONST.FIELD_PASSWORD]).then ((hashedPassword) => {
         user[USERCONST.FIELD_PASSWORD] = hashedPassword;
         next ();
-    })
-    .catch ((err) => {
-        logger.error (err);//(ErrorConstants.PASSWORD_HASH_GENERATION_ERROR);
+    }).catch ((err) => {
+        Utils.log ("error", (err));//(ErrorConstants.PASSWORD_HASH_GENERATION_ERROR);
         next (err);
     });
 });

@@ -11,10 +11,13 @@ import Utils from "../../commons/utils";
 
 export default class UserLogic {
 
-    static save (user) {
+    static create (user) {
         const newUser = new UserModel (user);
         return newUser.save ().then (() => {
-            return newUser.toObject ();
+            UserLogic.cache (newUser).catch ((err) => { // do not fail fast, if not stored in cache.
+                Utils.log ("error", UserConstants.USER_REDIS_SET_ERROR + "\n" + err);
+            });
+            //return newUser.toObject ();
         });
     }
 
