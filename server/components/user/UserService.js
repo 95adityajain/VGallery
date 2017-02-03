@@ -48,13 +48,9 @@ export const login = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     performLogin (email, password).then (() => {
-        const authObj = {
-            [USERCONST.FIELD_SID]: HashUtils.getRandomString (),
-            [USERCONST.FIELD_SSID]: HashUtils.getRandomString ()
-        };
-        UserLogic.setSession (email, authObj).then (() => {
-            authObj.email = email;
-            res.status (200).json (authObj);
+        const sid = HashUtils.getRandomString ();
+        UserLogic.setSession (email, sid).then (() => {
+            res.status (200).json ({email, sid});
         });
     }).catch (OperationalError, (err) => {
         res.status (500).json ({"message": err});

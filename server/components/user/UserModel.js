@@ -58,10 +58,19 @@ userSchema.statics.getObjByEmail =  function (email) {
 };
 
 userSchema.statics.getFieldByEmail = function (email, fieldName) {
-    return this.findOne ({[USERCONST.FIELD_EMAIL]: email}, {[fieldName]: 1}).lean ();
+    const projectionObj = {[fieldName]: 1};
+    if (fieldName != USERCONST.FIELD_ID) {
+        projectionObj [USERCONST.FIELD_ID] = -1;
+    }
+    return this.findOne ({[USERCONST.FIELD_EMAIL]: email}, projectionObj).lean ().then ((obj) => {
+        return obj [fieldName];
+    });
 };
 
 userSchema.statics.getMultiFieldByEmail = function (email, projectionObj) {
+    if (!projectionObj [USERCONST.FIELD_ID]) {
+        projectionObj [USERCONST.FIELD_ID] = -1;
+    }
     return this.findOne ({[USERCONST.FIELD_EMAIL]: email}, projectionObj).lean ();
 };
 

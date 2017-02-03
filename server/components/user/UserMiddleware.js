@@ -67,12 +67,10 @@ export const preLogin = (req, res, next) => {
  */
 export const authenticateLoggedInUser = (req, res, next) => {
     //TODO: query params authentication
-    UserLogic.getSession (req.query.email).then ((sessionObj) => {
-        if (!sessionObj || !sessionObj.SID ||
-            sessionObj.SID != req.query.sid ||sessionObj.SSID != req.query.ssid) {
+    UserLogic.getSession (req.query.email).then ((sessionId) => {
+        if (!sessionId || sessionId != req.query.sid) {
             throw new OperationalError (UserConstants.USER_SESSION_AUTHENTICATION_FAILED_ERROR);
         }
-        req.query.sid = req.query.ssid = undefined;
         return next ();
     }).catch (OperationalError, (err) => {
         res.status (400).json ({"message": err.cause});

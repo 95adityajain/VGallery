@@ -18,9 +18,9 @@ export const USERCONST = {
     FIELD_PHOTO: "photo",
     FIELD_PREFERENCES: "preferences",
     FIELD_GENRES: "genres",
-    FIELD_AUTH: "auth",
+    //FIELD_AUTH: "auth",
     FIELD_SID: "sid",
-    FIELD_SSID: "ssid",
+    //FIELD_SSID: "ssid",
 
     VALUE_GENDER_MALE: "male",
     VALUE_GENDER_FEMALE: "female",
