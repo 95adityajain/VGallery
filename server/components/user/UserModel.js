@@ -15,8 +15,6 @@ import Utils from "../../commons/utils";
 const userSchema = new Schema ({
     [USERCONST.FIELD_EMAIL]: {type: String, lowercase: true, unique: true, required: true},
     [USERCONST.FIELD_PASSWORD]: {type: String, required: true},
-    // passwordResetToken: String,
-    // passwordResetExpires: String,
     [USERCONST.FIELD_METADATA]: {
         [USERCONST.FIELD_IS_ADULT_CONTENT_ALLOWED]: {type: Boolean, default: false},
         [USERCONST.FIELD_IS_REGISTRATION_PENDING]: {type: Boolean, default: true},
@@ -40,7 +38,7 @@ userSchema.pre ("save", function(next) {
     if (!user.isModified (USERCONST.FIELD_PASSWORD)) {
         return next ();
     }
-    HashUtils.generateHash (user[USERCONST.FIELD_PASSWORD]).then ((hashedPassword) => {
+    HashUtils.generatePassword (user[USERCONST.FIELD_PASSWORD]).then ((hashedPassword) => {
         user[USERCONST.FIELD_PASSWORD] = hashedPassword;
         next ();
     }).catch ((err) => {
@@ -63,8 +61,15 @@ userSchema.statics.getFieldByEmail = function (email, fieldName) {
         projectionObj [USERCONST.FIELD_ID] = -1;
     }
     return this.findOne ({[USERCONST.FIELD_EMAIL]: email}, projectionObj).lean ().then ((obj) => {
+        if (!obj) {
+            return null;
+        }
         return obj [fieldName];
     });
+};
+
+userSchema.statics.updateFieldByEmail = function (email, fieldName, fieldValue) {
+    return this.update ({[USERCONST.FIELD_EMAIL]: email}, {$set: {[fieldName]: fieldValue}}, {runValidators: true});
 };
 
 userSchema.statics.getMultiFieldByEmail = function (email, projectionObj) {

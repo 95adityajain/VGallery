@@ -7,19 +7,13 @@ import ProcessErrorConstants from "../../commons/constants/ErrorConstants";
 
 
 
-const performPreRegistrationChecks = (email) => {
-    return UserLogic.isEmailExists (email).then ((result) => {
-        return !result;
-    });
-};
-
 /**
  * POST /user/registrationRequest
  * Middleware for pre registrationRequest checks
  */
 export const preRegistrationRequest = (req, res, next) => {
-    performPreRegistrationChecks (req.body.user.email).then ((result) => {
-        if (!result) {
+    UserLogic.isEmailExists (req.body.user.email).then ((alreadyExists) => {
+        if (alreadyExists) {
             return res.status (500).json ({"message":UserConstants.USER_REGISTRATION_EMAIL_ALREADY_EXISTS});
         }
         return next ();
@@ -30,7 +24,7 @@ export const preRegistrationRequest = (req, res, next) => {
 };
 
 
-const performPreLoginChecks = (email) => {
+function performPreLoginChecks (email) {
     return UserLogic.getField (email, USERCONST.FIELD_METADATA).then ((metadata) => {
         if (!metadata)
             throw new OperationalError (UserConstants.USER_PRE_LOGIN_EMAIL_NOT_EXISTS_ERROR);
@@ -40,7 +34,7 @@ const performPreLoginChecks = (email) => {
             throw new OperationalError (UserConstants.USER_PRE_LOGIN_REGISTRATION_PENDING_ERROR);
         return true;
     });
-};
+}
 
 
 /**
@@ -49,6 +43,19 @@ const performPreLoginChecks = (email) => {
  */
 export const preLogin = (req, res, next) => {
     performPreLoginChecks (req.body.email).then (() => {
+        return next ();
+    }).catch (OperationalError, (err) => {
+        res.status (400).json ({"message": err.cause});
+        return Utils.log ("error", err.cause);
+    }).catch ((err) => {
+        res.status (500).json ({"message": ProcessErrorConstants.PROCESSING_ERROR});
+        return Utils.log ("error", err);
+    });
+};
+
+
+export const preResetPassword = (req, res, next) => {
+    UserLogic.compareResetPasswordToken (req.body.email, req.body.reset_token).then (() => {
         return next ();
     }).catch (OperationalError, (err) => {
         res.status (400).json ({"message": err.cause});

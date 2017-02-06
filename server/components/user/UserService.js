@@ -1,8 +1,8 @@
 import UserLogic from "./UserLogic";
-import HashUtils from "../../commons/utils/HashUtils";
+//import HashUtils from "../../commons/utils/HashUtils";
 import Utils from "../../commons/utils";
 import UserConstants from "../../commons/constants/UserConstants";
-//import ProcessErrorConstants from "../../commons/constants/ErrorConstants";
+import ProcessErrorConstants from "../../commons/constants/ErrorConstants";
 import { USERCONST } from "../../commons/constants/DataConstants";
 import { OperationalError } from "bluebird";
 
@@ -24,16 +24,6 @@ export const registrationRequest = (req, res) => {
 };
 
 
-const performLogin = (email, password) => {
-    return UserLogic.getField (email, USERCONST.FIELD_PASSWORD).then ((hashedPassword) => {
-        return HashUtils.compareHash (password, hashedPassword);
-    }).then ((isValidPassword) => {
-        if (!isValidPassword)
-            throw new OperationalError (UserConstants.USER_LOGIN_PASSWORD_NOT_MATCH_ERROR);
-        return true;
-    });
-};
-
 /**
  * POST /login
  * Login
@@ -47,13 +37,12 @@ const performLogin = (email, password) => {
 export const login = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    performLogin (email, password).then (() => {
-        const sid = HashUtils.getRandomString ();
-        UserLogic.setSession (email, sid).then (() => {
-            res.status (200).json ({email, sid});
+    UserLogic.verifyPassword (email, password).then (() => {
+        return UserLogic.generateSession (email).then ((sid) => {
+            return res.status (200).json ({email, sid});
         });
     }).catch (OperationalError, (err) => {
-        res.status (500).json ({"message": err});
+        res.status (500).json ({"message": err.cause});
         return Utils.log ("error", err);
     }).catch ((err) => {
         res.status (500).json ({"message": UserConstants.USER_LOGIN_ERROR});
@@ -69,7 +58,7 @@ export const login = (req, res) => {
 export const logout = (req, res) => {
     const email = req.query.email;
     UserLogic.deleteSession (email).then (() => {
-        res.status (200).json ({});
+        return res.status (200).end ();
     }).catch ((err) => {
         res.status (500).json ({"message": UserConstants.USER_LOGOUT_ERROR});
         return Utils.log ("error", err);
@@ -81,10 +70,10 @@ export const logout = (req, res) => {
  * GET /basicProfile
  * BasicProfile
  */
-export const basicProfile = (req, res) => {
+export const getBasicProfile = (req, res) => {
     const email = req.query.email;
     return UserLogic.getField (email, USERCONST.FIELD_PROFILE).then ((basicProfileObj) => {
-        res.status (200).json (basicProfileObj);
+        return res.status (200).json (basicProfileObj);
     }).catch ((err) => {
         res.status (500).json ({"message": UserConstants.USER_GET_PROFILE_ERROR});
         return Utils.log ("error", UserConstants.USER_GET_PROFILE_ERROR+"\n"+err);
@@ -96,13 +85,45 @@ export const basicProfile = (req, res) => {
  * GET /preferences
  * Preferences
  */
-export const preferences = (req, res) => {
+export const getPreferences = (req, res) => {
     const email = req.query.email;
     return UserLogic.getField (email, USERCONST.FIELD_PREFERENCES).then ((preferencesObj) => {
-        res.status (200).json (preferencesObj);
+        return res.status (200).json (preferencesObj);
     }).catch ((err) => {
         res.status (500).json ({"message": UserConstants.USER_GET_PREFERENCES_ERROR});
         return Utils.log ("error", UserConstants.USER_GET_PREFERENCES_ERROR+"\n"+err);
+    });
+};
+
+
+/**
+* POST /basicProfile
+* basicProfile
+*/
+export const updateBasicProfile = (req, res) => {
+    const email = req.query.email;
+    const updatedBasicProfile = req.body.basicProfile;
+    return UserLogic.updateField (email, USERCONST.FIELD_PROFILE, updatedBasicProfile).then (() => {
+        return res.status (200).end ();
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_UPDATE_PROFILE_ERROR});
+        return Utils.log ("error", UserConstants.USER_UPDATE_PROFILE_ERROR+"\n"+err);
+    });
+};
+
+
+/**
+ * POST /preferences
+ * Preferences
+ */
+export const updatePreferences = (req, res) => {
+    const email = req.query.email;
+    const updatedPreferences = req.body.preferences;
+    return UserLogic.updateField (email, USERCONST.FIELD_PREFERENCES, updatedPreferences).then (() => {
+        return res.status (200).end ();
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_UPDATE_PREFERENCES_ERROR});
+        return Utils.log ("error", UserConstants.USER_UPDATE_PREFERENCES_ERROR+"\n"+err);
     });
 };
 
@@ -110,20 +131,51 @@ export const history = (req, res) => {
 
 };
 
-export const changePassword = (req, res) => {
-
+export const updatePassword = (req, res) => {
+    const email = req.query.email;
+    const oldPassword = req.body.old_password;
+    const newPassword = req.body.new_password;
+    UserLogic.validateAndUpdatePassword (email, oldPassword, newPassword).then (() => {
+        return res.status (200).end ();
+    }).catch (OperationalError, (err) => {
+        res.status (500).json ({"message": err.cause});
+        return Utils.log ("error", err);
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_UPDATE_PASSWORD_ERROR});
+        return Utils.log ("error", err);
+    });
 };
 
-export const forgetPassword = (req, res) => {
-
+export const requestResetPassword = (req, res) => {
+    const email = req.params.email;
+    UserLogic.setResetPasswordToken (email).then (() => {
+        return res.status (200).end ();
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_RESET_PASSWORD_REQUEST_ERROR});
+        return Utils.log ("error", err);
+    });
 };
 
-export const resetPasswordDisplay = (req, res) => {
 
-};
-
+//TODO: (THINK) can delete token after successfull updation of password.
 export const resetPassword = (req, res) => {
+    const email = req.body.email;
+    const newPassword = req.body.new_password;
+    UserLogic.generateAndUpdatePassword (email, newPassword).then (() => {
+        res.status (200).end ();
+    }).catch ((err) => {
+        res.status (500).json ({"message": ProcessErrorConstants.PROCESSING_ERROR});
+        return Utils.log ("error", err);
+    });
+};
 
+export const getAllResetPasswordRequest = (req, res) => {
+    UserLogic.getResetPasswordListforAdminDisplay ().then ((list) => {
+        return res.status (200).json (list);
+    }).catch ((err) => {
+        res.status (500).json ({"message": ProcessErrorConstants.PROCESSING_ERROR});
+        return Utils.log ("error", err);
+    });
 };
 
 export const requestContent = (req, res) => {
