@@ -20,12 +20,19 @@ Router.post ("/resetPassword", UserService.resetPassword);
 //authentication middleware
 Router.use (UserMiddleware.authenticateLoggedInUser);
 
-Router.get ("/logout", UserService.logout);
-Router.get ("/basicProfile", UserService.getBasicProfile);
-Router.get ("/preferences", UserService.getPreferences);
 
+Router.get ("/logout", UserService.logout);
+
+Router.get ("/basicProfile", UserService.getBasicProfile);
 Router.post ("/basicProfile", UserService.updateBasicProfile);
+
+Router.get ("/preferences", UserService.getPreferences);
 Router.post ("/preferences", UserService.updatePreferences);
+
+Router.get ("/contentRequest", UserService.getContentRequests);
+Router.put ("/contentRequest", UserService.createContentRequest);
+
+Router.post ("/password", UserService.preUpdatePassword);
 Router.post ("/password", UserService.updatePassword);
 
 

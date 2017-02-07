@@ -1,5 +1,6 @@
 import UserModel from "./UserModel";
 import UserPasswordResetModel from "./UserPasswordResetModel";
+import UserContentRequestModel from "./UserContentRequestModel";
 import UserCache from "./UserCache";
 import { CONST, USERCONST } from "../../commons/constants/DataConstants";
 //import ProcessErrorConstants from "../../commons/constants/ErrorConstants";
@@ -24,7 +25,6 @@ export default class UserLogic {
 
     static getDocument (email) {
         return UserModel.getDocByEmail (email).then ((doc) => {
-            console.log (doc);
             return doc;
         });
     }
@@ -126,10 +126,17 @@ export default class UserLogic {
         });
     }
 
-    static validateAndUpdatePassword (email, oldPassword, newPassword) {
-        return UserLogic.verifyPassword (email, oldPassword).then (() => {
-            return UserLogic.generateAndUpdatePassword (email, newPassword);
-        });
+    static createContentRequest (request) {
+        const newRequest = new UserContentRequestModel (request);
+        return newRequest.save ();
+    }
+
+    static getContentRequestList (email) {
+        return UserContentRequestModel.getListByEmail (email);
+    }
+
+    static getAllContentRequest () {
+        return UserContentRequestModel.getList ();
     }
 
     /*static cache (user) {

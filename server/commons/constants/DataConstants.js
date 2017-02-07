@@ -5,6 +5,7 @@ export const CONST = {
 export const USERCONST = {
     BASE: "users",
     RESET_TOKEN_BASE: "users_reset_token",
+    CONTENT_REQUEST_BASE: "user_content_request",
 
     FIELD_ID: "_id",
     FIELD_EMAIL: "email",
@@ -24,12 +25,18 @@ export const USERCONST = {
     //FIELD_SSID: "ssid",
     FIELD_RESET_TOKEN: "reset_token",
     FIELD_EXPIRE_AT: "expireAt",
+    FIELD_MESSAGE: "message",
+    FIELD_CONTENT_REQUEST_TYPE: "content_request_type",
 
     VALUE_RESET_PASSWORDS_ONE_PAGE_COUNT: 5,
     VALUE_RESET_TOKEN_EXPIRY_SECONDS: 43200,
     VALUE_GENDER_MALE: "male",
     VALUE_GENDER_FEMALE: "female",
-    VALUE_GENDER_OTHER: "other"
+    VALUE_GENDER_OTHER: "other",
+    VALUE_CONTENT_REQUEST_MOVIE: "content_request_type_movie",
+    VALUE_CONTENT_REQUEST_TVSHOW: "content_request_type_tvshow",
+    VALUE_CONTENT_REQUEST_TVSHOWSEASON: "content_request_type_tvshowseason",
+    VALUE_CONTENT_REQUEST_SONG: "content_request_type_song",
 };
 
 export const GENRECONST = {

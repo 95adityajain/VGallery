@@ -15,11 +15,13 @@ const constants = {
 
     USER_GET_PROFILE_ERROR: "Unable to get user basic profile",
     USER_GET_PREFERENCES_ERROR: "Unable to get user preferences",
+    USER_GET_CONTENT_REQUEST_ERROR: "Unable to get content requests",
 
     USER_UPDATE_PASSWORD_ERROR: "Unable to update password",
     //USER_UPDATE_OLD_PASSWORD_NOT_MATCH_ERROR: "Old password didn't match",
     USER_UPDATE_PROFILE_ERROR: "Unable to update basic profile",
     USER_UPDATE_PREFERENCES_ERROR: "Unable to update preferences",
+    USER_CREATE_CONTENT_REQUEST_ERROR: "Unable to set content request",
 
     USER_SESSION_AUTHENTICATION_FAILED_ERROR: "Authentication failed",
     USER_MISSING_QUERY_PARAMS_ERROR: "Missing required query params is request",

@@ -96,6 +96,17 @@ export const getPreferences = (req, res) => {
 };
 
 
+export const getContentRequests = (req, res) => {
+    const email = req.query.email;
+    UserLogic.getContentRequestList (email).then ((list) => {
+        return res.status (200).json (list);
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_GET_CONTENT_REQUEST_ERROR});
+        return Utils.log ("error", UserConstants.USER_GET_CONTENT_REQUEST_ERROR+"\n"+err);
+    });
+};
+
+
 /**
 * POST /basicProfile
 * basicProfile
@@ -133,15 +144,24 @@ export const history = (req, res) => {
 
 export const updatePassword = (req, res) => {
     const email = req.query.email;
-    const oldPassword = req.body.old_password;
     const newPassword = req.body.new_password;
-    UserLogic.validateAndUpdatePassword (email, oldPassword, newPassword).then (() => {
+    UserLogic.generateAndUpdatePassword (email, newPassword).then (() => {
         return res.status (200).end ();
     }).catch (OperationalError, (err) => {
         res.status (500).json ({"message": err.cause});
         return Utils.log ("error", err);
     }).catch ((err) => {
         res.status (500).json ({"message": UserConstants.USER_UPDATE_PASSWORD_ERROR});
+        return Utils.log ("error", err);
+    });
+};
+
+export const createContentRequest = (req, res) => {
+    const contentRequest = req.body.contentRequest;
+    UserLogic.createContentRequest (contentRequest).then (() => {
+        return res.status (200).end ();
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_CREATE_CONTENT_REQUEST_ERROR});
         return Utils.log ("error", err);
     });
 };

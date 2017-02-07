@@ -54,6 +54,21 @@ export const preLogin = (req, res, next) => {
 };
 
 
+export const preUpdatePassword = (req, res, next) => {
+    const email = req.query.email;
+    const oldPassword = req.body.old_password;
+    UserLogic.verifyPassword (email, oldPassword).then (() => {
+        return next ();
+    }).catch (OperationalError, (err) => {
+        res.status (400).json ({"message": err.cause});
+        return Utils.log ("error", err.cause);
+    }).catch ((err) => {
+        res.status (500).json ({"message": ProcessErrorConstants.PROCESSING_ERROR});
+        return Utils.log ("error", err);
+    });
+};
+
+
 export const preResetPassword = (req, res, next) => {
     UserLogic.compareResetPasswordToken (req.body.email, req.body.reset_token).then (() => {
         return next ();
