@@ -64,6 +64,12 @@ userHistorySchema.statics.getAllByContentType = function (contentType, pageNo) {
         .skip (start).limit (USERCONST.VALUE_HISTORY_ONE_PAGE_COUNT).lean ();
 };
 
+userHistorySchema.statics.getByEmailAndLaterMarkedContent = function (email, contentType, pageNo) {
+    const start = pageNo * USERCONST.VALUE_HISTORY_ONE_PAGE_COUNT;
+    return this.find ({[USERCONST.FIELD_EMAIL]: email, [USERCONST.FIELD_CONTENT_TYPE]: contentType, [USERCONST.FIELD_HISTORY_STATUS]: USERCONST.VALUE_HISTORY_STATUS_LATER})
+        .skip (start).limit (USERCONST.VALUE_HISTORY_ONE_PAGE_COUNT).lean ();
+};
+
 const userHistoryModel = model (USERCONST.HISTORY_BASE, userHistorySchema);
 
 

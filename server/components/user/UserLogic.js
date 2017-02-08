@@ -156,6 +156,10 @@ export default class UserLogic {
         return UserHistoryModel.getAllByContentType (contentType, pageNo);
     }
 
+    static getLaterMarkedContent (email, contentType, pageNo) {
+        return UserHistoryModel.getByEmailAndLaterMarkedContent (email, contentType, pageNo);
+    }
+
     /*static cache (user) {
         return UserCache.set (user.email, {
             [USERCONST.FIELD_PASSWORD]: user[USERCONST.FIELD_PASSWORD],

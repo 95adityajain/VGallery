@@ -17,6 +17,7 @@ const constants = {
     USER_GET_PREFERENCES_ERROR: "Unable to get user preferences",
     USER_GET_CONTENT_REQUEST_ERROR: "Unable to get user content requests",
     USER_GET_HISTORY_ERROR: "Unable to get user history",
+    USER_GET_CONTINUE_ERROR: "Unable to get user continue content",
 
     USER_UPDATE_PASSWORD_ERROR: "Unable to update password",
     //USER_UPDATE_OLD_PASSWORD_NOT_MATCH_ERROR: "Old password didn't match",

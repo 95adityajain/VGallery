@@ -35,8 +35,10 @@ Router.put ("/contentRequest", UserService.createContentRequest);
 Router.post ("/password", UserService.preUpdatePassword);
 Router.post ("/password", UserService.updatePassword);
 
-Router.post ("/history", UserService.getHistory);
-Router.post ("/history/:content_type", UserService.getHistoryByContentType);
+Router.post ("/history/:page_no", UserService.getHistory);
+Router.post ("/history/:content_type/:page_no", UserService.getHistoryByContentType);
+
+Router.get ("/continue/:content_type/:page_no", UserService.getContinueContent);
 
 
 

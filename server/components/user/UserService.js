@@ -140,7 +140,8 @@ export const updatePreferences = (req, res) => {
 
 export const getHistory = (req, res) => {
     const email = req.query.email;
-    UserLogic.getHistory (email).then ((list) => {
+    const pageNo = req.params.page_no;
+    UserLogic.getHistory (email, pageNo).then ((list) => {
         return res.status (200).json (list);
     }).catch ((err) => {
         res.status (500).json ({"message": UserConstants.USER_GET_HISTORY_ERROR});
@@ -151,7 +152,8 @@ export const getHistory = (req, res) => {
 export const getHistoryByContentType = (req, res) => {
     const email = req.query.email;
     const contentType = req.params.content_type;
-    UserLogic.getHistoryByContentType (email, contentType).then ((list) => {
+    const pageNo = req.params.page_no;
+    UserLogic.getHistoryByContentType (email, contentType, pageNo).then ((list) => {
         return res.status (200).json (list);
     }).catch ((err) => {
         res.status (500).json ({"message": UserConstants.USER_GET_HISTORY_ERROR});
@@ -212,6 +214,18 @@ export const getAllResetPasswordRequest = (req, res) => {
     }).catch ((err) => {
         res.status (500).json ({"message": ProcessErrorConstants.PROCESSING_ERROR});
         return Utils.log ("error", err);
+    });
+};
+
+export const getContinueContent = (req, res) => {
+    const email = req.query.email;
+    const contentType = req.params.content_type;
+    const pageNo = req.params.page_no;
+    UserLogic.getLaterMarkedContent (email, contentType, pageNo).then ((list) => {
+        return res.status (200).json (list);
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_GET_CONTINUE_ERROR});
+        return Utils.log ("error", UserConstants.USER_GET_CONTINUE_ERROR + "\n" + err);
     });
 };
 
