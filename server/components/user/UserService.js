@@ -138,8 +138,25 @@ export const updatePreferences = (req, res) => {
     });
 };
 
-export const history = (req, res) => {
+export const getHistory = (req, res) => {
+    const email = req.query.email;
+    UserLogic.getHistory (email).then ((list) => {
+        return res.status (200).json (list);
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_GET_HISTORY_ERROR});
+        return Utils.log ("error", UserConstants.USER_GET_HISTORY_ERROR + "\n" + err);
+    });
+};
 
+export const getHistoryByContentType = (req, res) => {
+    const email = req.query.email;
+    const contentType = req.params.content_type;
+    UserLogic.getHistoryByContentType (email, contentType).then ((list) => {
+        return res.status (200).json (list);
+    }).catch ((err) => {
+        res.status (500).json ({"message": UserConstants.USER_GET_HISTORY_ERROR});
+        return Utils.log ("error", UserConstants.USER_GET_HISTORY_ERROR + "\n" + err);
+    });
 };
 
 export const updatePassword = (req, res) => {
@@ -196,10 +213,6 @@ export const getAllResetPasswordRequest = (req, res) => {
         res.status (500).json ({"message": ProcessErrorConstants.PROCESSING_ERROR});
         return Utils.log ("error", err);
     });
-};
-
-export const requestContent = (req, res) => {
-
 };
 
 export const requestAccess = (req, res) => {

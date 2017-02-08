@@ -6,6 +6,7 @@ export const USERCONST = {
     BASE: "users",
     RESET_TOKEN_BASE: "users_reset_token",
     CONTENT_REQUEST_BASE: "user_content_request",
+    HISTORY_BASE: "user_history",
 
     FIELD_ID: "_id",
     FIELD_EMAIL: "email",
@@ -26,17 +27,28 @@ export const USERCONST = {
     FIELD_RESET_TOKEN: "reset_token",
     FIELD_EXPIRE_AT: "expireAt",
     FIELD_MESSAGE: "message",
-    FIELD_CONTENT_REQUEST_TYPE: "content_request_type",
+    FIELD_CONTENT_TYPE: "content_type",
+    FIELD_CONTENT_META: "content_meta",
+    FIELD_CONTENT_META_SEASON: "content_meta_season",
+    FIELD_CONTENT_META_EPISODE: "content_meta_episode",
+    FIELD_CONTENT_META_ALBUM: "content_meta_album",
+    FIELD_CONTENT_ID: "content_id",
+    FIELD_HISTORY_STATUS: "status",
+    FIELD_HISTORY_SEARCH_HASH: "history_search_hash",
+    FIELD_COMPLETED_TILL: "completed_till",
 
     VALUE_RESET_PASSWORDS_ONE_PAGE_COUNT: 5,
+    VALUE_HISTORY_ONE_PAGE_COUNT: 8,
     VALUE_RESET_TOKEN_EXPIRY_SECONDS: 43200,
     VALUE_GENDER_MALE: "male",
     VALUE_GENDER_FEMALE: "female",
     VALUE_GENDER_OTHER: "other",
-    VALUE_CONTENT_REQUEST_MOVIE: "content_request_type_movie",
-    VALUE_CONTENT_REQUEST_TVSHOW: "content_request_type_tvshow",
-    VALUE_CONTENT_REQUEST_TVSHOWSEASON: "content_request_type_tvshowseason",
-    VALUE_CONTENT_REQUEST_SONG: "content_request_type_song",
+    VALUE_CONTENT_MOVIE: "content_type_movie",
+    VALUE_CONTENT_TVSHOW: "content_type_tvshow",
+    VALUE_CONTENT_SONG: "content_type_song",
+    VALUE_HISTORY_STATUS_COMPLETED: "completed",
+    VALUE_HISTORY_STATUS_LATER: "later",
+    VALUE_HISTORY_STATUS_CURRENT: "current" //TODO: (THINK), IF NEED TO USE IT OR NOT.
 };
 
 export const GENRECONST = {

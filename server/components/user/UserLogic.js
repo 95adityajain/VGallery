@@ -1,6 +1,7 @@
 import UserModel from "./UserModel";
 import UserPasswordResetModel from "./UserPasswordResetModel";
 import UserContentRequestModel from "./UserContentRequestModel";
+import UserHistoryModel from "./UserHistoryModel";
 import UserCache from "./UserCache";
 import { CONST, USERCONST } from "../../commons/constants/DataConstants";
 //import ProcessErrorConstants from "../../commons/constants/ErrorConstants";
@@ -137,6 +138,22 @@ export default class UserLogic {
 
     static getAllContentRequest () {
         return UserContentRequestModel.getList ();
+    }
+
+    static getHistory (email) {
+        return UserHistoryModel.getByEmail (email);
+    }
+
+    static getHistoryByContentType (email, contentType) {
+        return UserHistoryModel.getByEmailAndContentType (email, contentType);
+    }
+
+    static getAllHistory () {
+        return UserHistoryModel.getAll ();
+    }
+
+    static getAllHistoryByContentType (contentType) {
+        return UserHistoryModel.getAllByContentType (contentType);
     }
 
     /*static cache (user) {

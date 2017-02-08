@@ -5,7 +5,7 @@ import { USERCONST } from "../../commons/constants/DataConstants";
 
 const userRequestContentSchema = new Schema ({
     [USERCONST.FIELD_EMAIL]: {type: String, required: true},
-    [USERCONST.FIELD_CONTENT_REQUEST_TYPE]: {type: String, required: true, enum: [USERCONST.VALUE_CONTENT_REQUEST_MOVIE, USERCONST.VALUE_CONTENT_REQUEST_TVSHOW, USERCONST.VALUE_CONTENT_REQUEST_TVSHOWSEASON, USERCONST.VALUE_CONTENT_REQUEST_SONG]},
+    [USERCONST.FIELD_REQUEST_TYPE]: {type: String, required: true, enum: [USERCONST.VALUE_REQUEST_MOVIE, USERCONST.VALUE_REQUEST_TVSHOW, USERCONST.VALUE_REQUEST_SONG]},
     [USERCONST.FIELD_MESSAGE]: {type: String, required: true}
 });
 

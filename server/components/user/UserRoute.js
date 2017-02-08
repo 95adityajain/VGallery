@@ -35,6 +35,9 @@ Router.put ("/contentRequest", UserService.createContentRequest);
 Router.post ("/password", UserService.preUpdatePassword);
 Router.post ("/password", UserService.updatePassword);
 
+Router.post ("/history", UserService.getHistory);
+Router.post ("/history/:content_type", UserService.getHistoryByContentType);
+
 
 
 export default Router;
