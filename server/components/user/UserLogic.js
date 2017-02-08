@@ -140,20 +140,20 @@ export default class UserLogic {
         return UserContentRequestModel.getList ();
     }
 
-    static getHistory (email) {
-        return UserHistoryModel.getByEmail (email);
+    static getHistory (email, pageNo) {
+        return UserHistoryModel.getByEmail (email, pageNo);
     }
 
-    static getHistoryByContentType (email, contentType) {
-        return UserHistoryModel.getByEmailAndContentType (email, contentType);
+    static getHistoryByContentType (email, contentType, pageNo) {
+        return UserHistoryModel.getByEmailAndContentType (email, contentType, pageNo);
     }
 
-    static getAllHistory () {
-        return UserHistoryModel.getAll ();
+    static getAllHistory (pageNo) {
+        return UserHistoryModel.getAll (pageNo);
     }
 
-    static getAllHistoryByContentType (contentType) {
-        return UserHistoryModel.getAllByContentType (contentType);
+    static getAllHistoryByContentType (contentType, pageNo) {
+        return UserHistoryModel.getAllByContentType (contentType, pageNo);
     }
 
     /*static cache (user) {
